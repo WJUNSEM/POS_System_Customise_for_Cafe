@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matcha Box — Checkout</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .order-row { display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--border); }
+    .order-row:last-child { border-bottom:none; }
+    .order-icon { width:40px;height:40px;background:var(--mp);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px; }
+    .order-info { flex:1; }
+    .order-name { font-size:14px;font-weight:500;color:var(--text-primary); }
+    .order-opts { font-size:12px;color:var(--text-secondary);margin-top:2px; }
+    .qty-badge { background:var(--mp);color:var(--mg);font-size:11px;font-weight:500;padding:1px 7px;border-radius:8px;margin-left:5px; }
+    .order-price { font-size:14px;font-weight:500;color:var(--text-primary); }
+    .sum-row { display:flex;justify-content:space-between;align-items:center;padding:6px 0; }
+    .sum-label { font-size:13px;color:var(--text-secondary); }
+    .sum-val { font-size:13px;color:var(--text-primary); }
+    .sum-discount { color:var(--mm); }
+    .sum-divider { height:0.5px;background:var(--border);margin:8px 0; }
+    .pickup-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+    .pickup-opt { border:0.5px solid var(--border);border-radius:var(--radius-md);padding:12px;cursor:pointer;transition:all 0.12s;text-align:center; }
+    .pickup-opt:hover { border-color:var(--ml); }
+    .pickup-opt.selected { border-color:var(--mm);background:var(--mp); }
+    .pickup-icon { font-size:22px;margin-bottom:6px; }
+    .pickup-name { font-size:13px;font-weight:500;color:var(--text-primary); }
+    .pickup-desc { font-size:11px;color:var(--text-secondary);margin-top:2px; }
+    .promo-row { display:flex;gap:8px; }
+    .promo-msg { font-size:12px;margin-top:6px; }
+    .promo-ok  { color:var(--mm); }
+    .promo-err { color:#791F1F; }
+    .loyalty-banner { background:var(--mp);border:0.5px solid var(--ml);border-radius:var(--radius-md);padding:12px 14px;display:flex;align-items:center;gap:10px; }
+    .loyalty-pts { font-size:13px;color:var(--mg);flex:1; }
+    .pts-toggle { background:none;border:0.5px solid var(--mm);color:var(--mm);border-radius:12px;padding:4px 14px;font-size:12px;font-weight:500;cursor:pointer; }
+    .pts-toggle.used { background:var(--mm);color:white; }
+
+      .cart-edit {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:7px;
+}
+
+.qty-control {
+  display:flex;
+  align-items:center;
+  border:0.5px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+}
+
+.qty-btn {
+  width:28px;
+  height:26px;
+  border:0;
+  background:var(--mp);
+  color:var(--mg);
+  font-size:16px;
+  cursor:pointer;
+}
+
+.qty-btn:hover {
+  background:var(--ml);
+}
+
+.qty-number {
+  min-width:28px;
+  text-align:center;
+  font-size:12px;
+  font-weight:500;
+}
+
+.remove-btn {
+  border:0;
+  background:none;
+  color:#791F1F;
+  font-size:11px;
+  cursor:pointer;
+  margin-left:5px;
+}
+
+.remove-btn:hover {
+  text-decoration:underline;
+}
+
+
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <button onclick="window.location.href='menu.html'" style="background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.2);color:white;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:13px;">← Menu</button>
+    <div class="logo">Matcha<span>Box</span></div>
+    <div style="width:80px;"></div>
+  </header>
+
+  <main style="max-width:720px;margin:0 auto;padding:20px 16px 120px;">
+    <div id="emptyCart" style="display:none;text-align:center;padding:60px 0;">
+      <div style="font-size:40px;margin-bottom:12px;">🛒</div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:8px;">Your cart is empty</div>
+      <button class="btn btn-primary" onclick="window.location.href='menu.html'" style="width:auto;padding:10px 24px;margin-top:8px;">Browse menu</button>
+    </div>
+
+    <div id="checkoutContent">
+      <!-- Order items -->
+      <div class="card mb-12">
+        <div class="card-header">
+          <span class="card-header-title">Your order</span>
+        </div>
+        <div class="card-body" id="orderItems" style="padding:0 16px;"></div>
+      </div>
+
+      <!-- Order type -->
+      <div class="card mb-12">
+        <div class="card-header"><span class="card-header-title">Order type</span></div>
+        <div class="card-body">
+          <div class="pickup-grid">
+            <div class="pickup-opt selected" id="dineIn" onclick="selectType('dine_in')">
+              <div class="pickup-icon">🪑</div>
+              <div class="pickup-name">Dine in</div>
+              <div class="pickup-desc">Eat at the cafe</div>
+            </div>
+            <div class="pickup-opt" id="takeaway" onclick="selectType('takeaway')">
+              <div class="pickup-icon">🛍️</div>
+              <div class="pickup-name">Takeaway</div>
+              <div class="pickup-desc">Ready in ~10 min</div>
+            </div>
+          </div>
+          <div id="tableInput" style="margin-top:10px;">
+            <input class="form-input" id="tableNumber" placeholder="Table number (e.g. T-04)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Promo code -->
+      <div class="card mb-12">
+        <div class="card-header"><span class="card-header-title">Promo code</span></div>
+        <div class="card-body">
+          <div class="promo-row">
+            <input class="form-input" id="promoInput" placeholder="Enter promo code (try MATCHA10)">
+            <button class="btn btn-secondary" onclick="applyPromo()" style="white-space:nowrap;">Apply</button>
+          </div>
+          <div id="promoMsg" class="promo-msg"></div>
+        </div>
+      </div>
+
+      <!-- Loyalty points -->
+      <div class="loyalty-banner mb-12" id="loyaltyBanner" style="display:none;">
+        <span style="font-size:18px;">⭐</span>
+        <div class="loyalty-pts">You have <strong id="loyaltyPts">0</strong> points (worth <strong id="loyaltyVal">RM 0.00</strong>). Use them?</div>
+        <button class="pts-toggle" id="ptsBtn" onclick="togglePoints()">Use</button>
+      </div>
+
+      <!-- Order summary -->
+      <div class="card mb-12">
+        <div class="card-header"><span class="card-header-title">Order summary</span></div>
+        <div class="card-body">
+          <div class="sum-row"><span class="sum-label">Subtotal</span><span class="sum-val" id="subtotalVal">RM 0.00</span></div>
+          <div class="sum-row"><span class="sum-label">Service charge (6%)</span><span class="sum-val" id="svcVal">RM 0.00</span></div>
+          <div class="sum-row" id="discRow" style="display:none;"><span class="sum-label">Promo discount</span><span class="sum-val sum-discount" id="discVal">-RM 0.00</span></div>
+          <div class="sum-row" id="loyalRow" style="display:none;"><span class="sum-label">Loyalty points</span><span class="sum-val sum-discount" id="loyalVal2">-RM 0.00</span></div>
+          <div class="sum-divider"></div>
+          <div class="sum-row"><span style="font-size:15px;font-weight:500;">Total</span><span style="font-size:17px;font-weight:500;color:var(--mg);" id="totalVal">RM 0.00</span></div>
+        </div>
+      </div>
+
+      <!-- Special notes -->
+      <div class="card mb-12">
+        <div class="card-header"><span class="card-header-title">Special instructions</span></div>
+        <div class="card-body">
+          <textarea class="form-textarea" id="specialNotes" placeholder="Any allergies or special requests?"></textarea>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="proceedToPayment()" style="font-size:15px;padding:14px;">
+        Proceed to payment → <span id="checkoutTotal">RM 0.00</span>
+      </button>
+    </div>
+  </main>
+  <script src="/js/checkout.js"></script>
+</body>
+</html>

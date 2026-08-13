@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Matcha Box — Reports</title><link rel="stylesheet" href="/css/style.css">
+<style>
+body{background:var(--surface)}.bar{background:var(--mg);color:#fff;padding:14px 20px;display:flex;justify-content:space-between}.wrap{max-width:1100px;margin:auto;padding:18px 16px 50px}.cardx{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.table{width:100%;border-collapse:collapse;font-size:13px}.table th,.table td{text-align:left;padding:10px;border-bottom:1px solid var(--border)}.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:700px){.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar"><b>Matcha Box · Reports</b><button onclick="location.href='admin-dashboard.html'" style="background:transparent;color:#fff;border:1px solid #809a80;border-radius:8px;padding:7px 12px">Dashboard</button></div>
+<main class="wrap">
+<div class="cardx"><h3>Generate Report</h3><div class="filters">
+<div><label class="form-label">Start date</label><input class="form-input" id="start" type="date"></div>
+<div><label class="form-label">End date</label><input class="form-input" id="end" type="date"></div>
+<button class="btn btn-primary" onclick="generate()">Generate</button>
+<button class="btn btn-secondary" onclick="downloadCsv()">Export CSV (Excel)</button>
+</div></div>
+<div class="cards"><div class="cardx"><div class="label">Orders</div><h2 id="orders">0</h2></div><div class="cardx"><div class="label">Sales</div><h2 id="sales">RM 0.00</h2></div></div>
+<div class="cardx"><h3>Worker working days / hours</h3><div style="overflow:auto"><table class="table"><thead><tr><th>Worker</th><th>Role</th><th>Working Days</th><th>Hours</th><th>Sales</th></tr></thead><tbody id="workers"></tbody></table></div></div>
+</main>
+<script src="/js/admin.js"></script>
+<script>
+requireAdmin();const today=new Date();const iso=d=>d.toISOString().slice(0,10);document.getElementById('start').value=iso(new Date(today.getFullYear(),today.getMonth(),1));document.getElementById('end').value=iso(today);
+async function generate(){const s=start.value,e=end.value;if(!s||!e||s>e){alert('Please select a valid date range.');return;}const r=await fetch(`/api/reports/summary?start=${s}&end=${e}`);if(!r.ok){alert('Unable to generate report.');return;}const d=await r.json();orders.textContent=d.sales.orders;sales.textContent='RM '+Number(d.sales.sales||0).toFixed(2);workers.innerHTML=d.workers.map(w=>`<tr><td>${esc(w.name)}</td><td>${w.role}</td><td>${w.workingDays}</td><td>${Number(w.hoursWorked||0).toFixed(2)}</td><td>RM ${Number(w.sales||0).toFixed(2)}</td></tr>`).join('');}
+function downloadCsv(){const s=start.value,e=end.value;if(!s||!e){alert('Select dates first.');return;}window.location.href=`/api/reports/export?start=${s}&end=${e}`;}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}generate();
+</script>
+</body>
+</html>

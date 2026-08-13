@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matcha Box — Staff Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .role-badge { display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px;margin-top:3px; }
+    .staff-option { display:flex;align-items:center;gap:12px;padding:10px 14px;border:0.5px solid var(--border);border-radius:var(--radius-md);cursor:pointer;margin-bottom:6px;transition:all 0.12s; }
+    .staff-option:hover { border-color:var(--ml);background:var(--mp); }
+    .staff-option.selected { border-color:var(--mm);background:var(--mp); }
+    .staff-avatar { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:white;flex-shrink:0; }
+    .pin-display { display:flex;gap:10px;justify-content:center;margin:16px 0 10px; }
+    .pin-dot { width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border-mid);transition:all 0.15s; }
+    .pin-dot.filled { background:var(--mg);border-color:var(--mg); }
+    .numpad { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px; }
+    .num-key { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-md);height:50px;font-size:20px;font-weight:500;color:var(--text-primary);cursor:pointer;transition:all 0.12s;font-family:var(--font); }
+    .num-key:hover { background:var(--mp);border-color:var(--ml);color:var(--mg); }
+    .num-key.del { font-size:14px;color:var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-card" style="max-width:420px;">
+      <div class="login-logo">Matcha<span>Box</span></div>
+      <div class="login-title">Staff access</div>
+
+      <div id="errorAlert" class="error-msg" style="display:none;margin-bottom:14px;"></div>
+      <div id="successAlert" style="display:none;background:#E8F2E8;border:0.5px solid #7BAF7B;color:#27500A;border-radius:var(--radius-md);padding:12px 14px;font-size:13px;margin-bottom:14px;"></div>
+
+      <!-- Step 1: Select staff member -->
+      <div id="step1">
+        <p class="form-label" style="margin-bottom:10px;">Select your name</p>
+        <div id="staffList">
+          <div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:13px;">Loading staff...</div>
+        </div>
+      </div>
+
+      <!-- Step 2: Enter PIN -->
+      <div id="step2" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <button onclick="backToStep1()" style="background:none;border:none;color:var(--mm);cursor:pointer;font-size:13px;">← Back</button>
+          <span id="selectedName" style="font-size:14px;font-weight:500;color:var(--text-primary);"></span>
+        </div>
+        <p class="form-label" style="text-align:center;">Enter your 4-digit PIN</p>
+        <div class="pin-display">
+          <div class="pin-dot" id="d0"></div>
+          <div class="pin-dot" id="d1"></div>
+          <div class="pin-dot" id="d2"></div>
+          <div class="pin-dot" id="d3"></div>
+        </div>
+        <div class="numpad">
+          <button class="num-key" onclick="pinPress('1')">1</button>
+          <button class="num-key" onclick="pinPress('2')">2</button>
+          <button class="num-key" onclick="pinPress('3')">3</button>
+          <button class="num-key" onclick="pinPress('4')">4</button>
+          <button class="num-key" onclick="pinPress('5')">5</button>
+          <button class="num-key" onclick="pinPress('6')">6</button>
+          <button class="num-key" onclick="pinPress('7')">7</button>
+          <button class="num-key" onclick="pinPress('8')">8</button>
+          <button class="num-key" onclick="pinPress('9')">9</button>
+          <button class="num-key del" onclick="pinClear()">Clear</button>
+          <button class="num-key" onclick="pinPress('0')">0</button>
+          <button class="num-key del" onclick="pinDel()">&#9003;</button>
+        </div>
+        <button class="btn btn-primary" onclick="staffLogin()">Sign in</button>
+      </div>
+    </div>
+  </div>
+  <script src="/js/login.js"></script>
+</body>
+</html>

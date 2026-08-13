@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matcha Box — Payment</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .pay-opt { border:0.5px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:8px;transition:all 0.12s; }
+    .pay-opt:hover { border-color:var(--ml); }
+    .pay-opt.selected { border-color:var(--mm);background:var(--mp); }
+    .pay-icon-box { width:44px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0; }
+    .pay-name { font-size:14px;color:var(--text-primary);flex:1; }
+    .pay-sub  { font-size:12px;color:var(--text-secondary);margin-top:2px; }
+    .pay-radio { width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .pay-opt.selected .pay-radio { border-color:var(--mm); }
+    .pay-radio-dot { width:10px;height:10px;border-radius:50%;background:var(--mm);display:none; }
+    .pay-opt.selected .pay-radio-dot { display:block; }
+    .order-mini { display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border); }
+    .order-mini:last-child { border-bottom:none; }
+    .success-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center; }
+    .success-card { background:white;border-radius:20px;padding:32px;text-align:center;max-width:320px;width:90%; }
+    .success-icon { font-size:52px;margin-bottom:12px; }
+    .success-title { font-size:20px;font-weight:500;color:var(--mg);margin-bottom:6px; }
+    .success-sub { font-size:13px;color:var(--text-secondary);margin-bottom:20px; }
+    .order-num-big { font-size:28px;font-weight:500;color:var(--mg);font-family:var(--font-mono);margin:12px 0; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <button onclick="window.location.href='checkout.html'" style="background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.2);color:white;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:13px;">← Back</button>
+    <div class="logo">Matcha<span>Box</span></div>
+    <div style="width:80px;"></div>
+  </header>
+
+  <main style="max-width:720px;margin:0 auto;padding:20px 16px 120px;">
+
+    <!-- Mini order summary -->
+    <div class="card mb-12">
+      <div class="card-header"><span class="card-header-title">Order summary</span></div>
+      <div class="card-body" id="miniSummary" style="padding:0 16px;"></div>
+      <div style="padding:12px 16px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;">
+        <span style="font-size:15px;font-weight:500;">Total</span>
+        <span style="font-size:17px;font-weight:500;color:var(--mg);" id="payTotal">RM 0.00</span>
+      </div>
+    </div>
+
+    <!-- Payment method -->
+    <div class="card mb-12">
+      <div class="card-header"><span class="card-header-title">Payment method</span></div>
+      <div class="card-body">
+        <div class="pay-opt selected" onclick="selectPay(this,'fpx')" id="payFPX">
+          <div class="pay-icon-box" style="background:#E8F2E8;border:0.5px solid #7BAF7B;color:#2D4A2D;">FPX</div>
+          <div><div class="pay-name">FPX Online Banking</div><div class="pay-sub">Maybank, CIMB, RHB & more</div></div>
+          <div class="pay-radio"><div class="pay-radio-dot"></div></div>
+        </div>
+        <div class="pay-opt" onclick="selectPay(this,'ewallet')" id="payEwallet">
+          <div class="pay-icon-box" style="background:#FAEEDA;border:0.5px solid #EF9F27;color:#633806;">e$</div>
+          <div><div class="pay-name">E-wallet</div><div class="pay-sub">Touch 'n Go, Boost, GrabPay</div></div>
+          <div class="pay-radio"><div class="pay-radio-dot"></div></div>
+        </div>
+        <div class="pay-opt" onclick="selectPay(this,'card')" id="payCard">
+          <div class="pay-icon-box" style="background:#E6F1FB;border:0.5px solid #85B7EB;color:#0C447C;">CC</div>
+          <div><div class="pay-name">Credit / Debit card</div><div class="pay-sub">Visa, Mastercard</div></div>
+          <div class="pay-radio"><div class="pay-radio-dot"></div></div>
+        </div>
+        <div class="pay-opt" onclick="selectPay(this,'cash')" id="payCash">
+          <div class="pay-icon-box" style="background:#F1EFE8;border:0.5px solid #C8C8C0;color:#5F5E5A;">RM</div>
+          <div><div class="pay-name">Cash</div><div class="pay-sub">Pay at counter</div></div>
+          <div class="pay-radio"><div class="pay-radio-dot"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Provider (for ewallet) -->
+    <div class="card mb-12" id="providerCard" style="display:none;">
+      <div class="card-header"><span class="card-header-title">Select provider</span></div>
+      <div class="card-body">
+        <select class="form-select" id="provider">
+          <option value="">Choose provider...</option>
+          <option value="TNG">Touch 'n Go</option>
+          <option value="Boost">Boost</option>
+          <option value="GrabPay">GrabPay</option>
+          <option value="ShopeePay">ShopeePay</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:12px;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:16px;">
+      🔒 Secured payment · Powered by Matcha Box Pay
+    </div>
+
+    <button class="btn btn-primary" onclick="placeOrder()" id="payBtn" style="font-size:15px;padding:14px;">
+      Place order · <span id="payBtnTotal">RM 0.00</span>
+    </button>
+  </main>
+
+  <!-- Success overlay -->
+  <div class="success-overlay" id="successOverlay" style="display:flex;display:none;">
+    <div class="success-card">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Order placed!</div>
+      <div class="success-sub">Your order has been received. Estimated wait: 10 minutes.</div>
+      <div class="order-num-big" id="orderNumDisplay">#0000</div>
+      <button class="btn btn-secondary" onclick="window.location.href='menu.html'" style="width:100%;">Back to menu</button>
+    </div>
+  </div>
+
+  <script src="/js/payment.js"></script>
+</body>
+</html>

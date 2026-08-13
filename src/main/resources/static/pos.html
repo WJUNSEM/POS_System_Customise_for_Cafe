@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matcha Box — POS Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { background:var(--surface); }
+    .pos-topbar { background:var(--mg);padding:12px 20px;display:flex;align-items:center;justify-content:space-between; }
+    .filter-row { display:flex;gap:6px;padding:12px 16px;background:var(--surface); }
+    .filter-btn { border:0.5px solid var(--border);background:white;color:var(--text-secondary);border-radius:20px;padding:5px 13px;font-size:12px;cursor:pointer;font-family:var(--font); }
+    .filter-btn.active { background:var(--mg);color:white;border-color:var(--mg);font-weight:500; }
+    .stats-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 16px 12px; }
+    .orders-list { display:flex;flex-direction:column;gap:8px;padding:0 16px 80px; }
+    .order-card { background:white;border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden; }
+    .order-card.urgent { border-color:#EF9F27; }
+    .progress-bar { height:3px;background:var(--border); }
+    .progress-fill { height:3px;background:var(--ml);transition:width 0.4s; }
+    .oc-head { padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid var(--border); }
+    .oc-num { font-size:14px;font-weight:500;color:var(--text-primary); }
+    .wait-pill { margin-left:auto;font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px; }
+    .wait-ok   { background:#EAF3DE;color:#27500A; }
+    .wait-warn { background:#FAEEDA;color:#633806; }
+    .wait-late { background:#FCEBEB;color:#791F1F; }
+    .oc-items { padding:8px 14px; }
+    .oc-item { display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px; }
+    .oc-qty { font-weight:500;color:var(--mg);min-width:20px; }
+    .oc-foot { padding:10px 14px;border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+    .status-btn { border:none;border-radius:var(--radius-md);padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font); }
+    .btn-new { background:var(--mp);color:var(--mg);border:0.5px solid var(--ml); }
+    .btn-prep { background:var(--mg);color:white; }
+    .btn-done { background:var(--surface);color:var(--text-secondary);border:0.5px solid var(--border); }
+  </style>
+</head>
+<body>
+  <div class="pos-topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="staff-avatar" id="staffAvatar">--</div>
+      <div>
+        <div style="color:white;font-size:14px;font-weight:500;">Matcha Box · POS</div>
+        <div style="color:#8CAE8C;font-size:11px;" id="staffLabel">Loading...</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="live-badge"><div class="live-dot"></div>Live</div>
+      <div style="color:#8CAE8C;font-size:12px;font-family:var(--font-mono);" id="posTime">--:--</div>
+      <button onclick="window.location.href='staff-login.html'" style="background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.2);color:white;border-radius:20px;padding:5px 12px;cursor:pointer;font-size:12px;">Logout</button>
+    </div>
+  </div>
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-label">Today's orders</div><div class="stat-value" id="sTotalOrders">--</div></div>
+    <div class="stat-card"><div class="stat-label">In queue</div><div class="stat-value amber" id="sQueue">--</div></div>
+    <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-value green" id="sRevenue">--</div></div>
+    <div class="stat-card"><div class="stat-label">Avg wait</div><div class="stat-value" id="sWait">~8m</div></div>
+  </div>
+
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('new',this)">New</button>
+    <button class="filter-btn" onclick="setFilter('preparing',this)">Preparing</button>
+    <button class="filter-btn" onclick="setFilter('ready',this)">Ready</button>
+  </div>
+
+  <div class="orders-list" id="ordersList">
+    <div style="text-align:center;padding:40px;color:var(--text-secondary);">Loading orders...</div>
+  </div>
+
+  <script src="/js/pos.js"></script>
+</body>
+</html>

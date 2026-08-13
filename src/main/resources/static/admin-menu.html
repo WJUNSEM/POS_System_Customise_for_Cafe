@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Matcha Box — Menu Management</title><link rel="stylesheet" href="/css/style.css">
+<style>
+body{background:var(--surface)}.bar{background:var(--mg);color:#fff;padding:14px 20px;display:flex;justify-content:space-between}.wrap{max-width:1100px;margin:auto;padding:18px 16px 50px}.grid{display:grid;grid-template-columns:360px 1fr;gap:14px}.cardx{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}.item{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);align-items:center}.item:last-child{border-bottom:0}.actions{display:flex;gap:5px}.small{font-size:12px;color:var(--text-secondary)}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar"><b>Matcha Box · Menu Management</b><button onclick="location.href='admin-dashboard.html'" style="background:transparent;color:#fff;border:1px solid #809a80;border-radius:8px;padding:7px 12px">Dashboard</button></div>
+<main class="wrap"><div class="grid">
+<div class="cardx">
+<h3 id="formTitle">Add Menu Item</h3>
+<input type="hidden" id="itemId">
+<div class="form-group"><label class="form-label">Name</label><input class="form-input" id="name"></div>
+<div class="form-group"><label class="form-label">Description</label><input class="form-input" id="description"></div>
+<div class="form-group"><label class="form-label">Price (RM)</label><input class="form-input" id="price" type="number" step="0.01"></div>
+<div class="form-group"><label class="form-label">Category</label><select class="form-select" id="category"></select></div>
+<div class="form-group"><label class="form-label">Image URL (optional)</label><input class="form-input" id="imageUrl"></div>
+<div class="form-group"><label><input type="checkbox" id="available" checked> Available</label></div>
+<div class="form-group"><label><input type="checkbox" id="popular"> Popular</label></div>
+<div class="form-group"><label><input type="checkbox" id="featured"> Featured</label></div>
+<button class="btn btn-primary" onclick="saveItem()">Save Item</button>
+<button class="btn btn-secondary" onclick="resetForm()">Clear</button>
+<div id="msg" style="margin-top:10px;font-size:12px"></div>
+</div>
+<div class="cardx"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Current Menu</h3><button class="btn btn-secondary" onclick="loadItems()">Refresh</button></div><div id="items">Loading...</div></div>
+</div></main>
+<script src="/js/admin.js"></script>
+<script>
+requireAdmin(); let allItems=[];
+async function loadCategories(){const r=await fetch('/api/menu/categories');const cats=await r.json();document.getElementById('category').innerHTML=cats.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');}
+async function loadItems(){const r=await fetch('/api/menu');allItems=await r.json();renderItems();}
+function renderItems(){document.getElementById('items').innerHTML=allItems.map(i=>`<div class="item"><div><b>${escapeHtml(i.name)}</b><div class="small">${escapeHtml(i.category?.name||'')} · RM ${Number(i.basePrice||0).toFixed(2)} · ${i.available?'Available':'Unavailable'}</div></div><div class="actions"><button class="btn btn-secondary" onclick="editItem(${i.id})">Edit</button><button class="btn btn-secondary" onclick="toggleItem(${i.id})">${i.available?'Hide':'Show'}</button></div></div>`).join('')||'<div>No menu items.</div>';}
+function editItem(id){const i=allItems.find(x=>x.id===id);if(!i)return;document.getElementById('itemId').value=i.id;document.getElementById('name').value=i.name||'';document.getElementById('description').value=i.description||'';document.getElementById('price').value=i.basePrice||'';document.getElementById('category').value=i.category?.id||'';document.getElementById('imageUrl').value=i.imageUrl||'';document.getElementById('available').checked=i.available;document.getElementById('popular').checked=i.popular;document.getElementById('featured').checked=i.featured;document.getElementById('formTitle').textContent='Edit Menu Item';window.scrollTo({top:0,behavior:'smooth'});}
+async function saveItem(){const name=document.getElementById('name').value.trim();const price=Number(document.getElementById('price').value);const categoryId=Number(document.getElementById('category').value);if(!name||!Number.isFinite(price)||!categoryId){showMsg('Please fill name, price and category.');return;}const body={name,description:document.getElementById('description').value,basePrice:price,category:{id:categoryId},imageUrl:document.getElementById('imageUrl').value,available:document.getElementById('available').checked,popular:document.getElementById('popular').checked,featured:document.getElementById('featured').checked};const id=document.getElementById('itemId').value;const r=await fetch(id?`/api/menu/${id}`:'/api/menu',{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(r.ok){showMsg('Saved successfully.');resetForm();loadItems();}else showMsg('Unable to save item. Check the server/database.');}
+async function toggleItem(id){const r=await fetch(`/api/menu/${id}/toggle-availability`,{method:'PATCH'});if(r.ok)loadItems();else alert('Unable to update item.');}
+function resetForm(){document.getElementById('itemId').value='';document.getElementById('name').value='';document.getElementById('description').value='';document.getElementById('price').value='';document.getElementById('imageUrl').value='';document.getElementById('available').checked=true;document.getElementById('popular').checked=false;document.getElementById('featured').checked=false;document.getElementById('formTitle').textContent='Add Menu Item';}
+function showMsg(t){document.getElementById('msg').textContent=t;}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+loadCategories().then(loadItems);
+</script>
+</body>
+</html>

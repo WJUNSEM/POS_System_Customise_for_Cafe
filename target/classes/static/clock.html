@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matcha Box — Clock In / Out</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { background:var(--surface); }
+    .clock-topbar { background:var(--mg);padding:12px 20px;display:flex;align-items:center;justify-content:space-between; }
+    .big-time { font-size:42px;font-weight:300;font-family:var(--font-mono);color:var(--mg);text-align:center;margin:8px 0; }
+    .big-date { font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:20px; }
+    .staff-item { display:flex;align-items:center;gap:12px;padding:10px 14px;border:0.5px solid var(--border);border-radius:var(--radius-md);cursor:pointer;margin-bottom:6px;transition:all 0.12s; }
+    .staff-item:hover { border-color:var(--ml);background:var(--mp); }
+    .staff-item.selected { border-color:var(--mm);background:var(--mp); }
+    .s-avatar { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:white;flex-shrink:0;background:var(--mg); }
+    .s-name { font-size:13px;font-weight:500;color:var(--text-primary); }
+    .s-role { font-size:11px;color:var(--text-secondary); }
+    .s-status { margin-left:auto;font-size:11px;padding:2px 8px;border-radius:8px; }
+    .pin-display { display:flex;gap:10px;justify-content:center;margin:12px 0; }
+    .numpad { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px; }
+    .num-key { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-md);height:50px;font-size:20px;font-weight:500;cursor:pointer;transition:all 0.12s;font-family:var(--font); }
+    .num-key:hover { background:var(--mp);border-color:var(--ml);color:var(--mg); }
+    .num-key.del { font-size:14px;color:var(--text-secondary); }
+    .action-btns { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+    .btn-clockin  { background:var(--mg);color:white;border:none;border-radius:var(--radius-md);padding:12px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font); }
+    .btn-clockout { background:white;color:#791F1F;border:0.5px solid #F09595;border-radius:var(--radius-md);padding:12px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font); }
+    .attendance-row { display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;padding:10px 0;border-bottom:0.5px solid var(--border);align-items:center;font-size:13px; }
+    .attendance-head { font-size:11px;font-weight:500;color:var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <div class="clock-topbar">
+    <div>
+      <div style="color:white;font-size:14px;font-weight:500;">Matcha Box · Staff</div>
+      <div style="color:#8CAE8C;font-size:11px;">Attendance Management</div>
+    </div>
+    <div>
+      <div style="color:white;font-size:18px;font-weight:500;font-family:var(--font-mono);text-align:right;" id="topTime">--:--:--</div>
+      <div style="color:#8CAE8C;font-size:11px;text-align:right;" id="topDate">Loading...</div>
+    </div>
+  </div>
+
+  <main style="max-width:720px;margin:0 auto;padding:16px 16px 40px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+      <!-- Left: clock panel -->
+      <div>
+        <div class="card mb-12">
+          <div class="card-header"><span class="card-header-title">Clock in / out</span></div>
+          <div class="card-body">
+            <!-- Step 1: select staff -->
+            <div id="clockStep1">
+              <p class="form-label" style="margin-bottom:8px;">Select your name</p>
+              <div id="clockStaffList">Loading...</div>
+            </div>
+            <!-- Step 2: PIN -->
+            <div id="clockStep2" style="display:none;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                <button onclick="clockBackToStep1()" style="background:none;border:none;color:var(--mm);cursor:pointer;font-size:13px;">← Back</button>
+                <span id="clockSelectedName" style="font-size:13px;font-weight:500;"></span>
+              </div>
+              <p class="form-label" style="text-align:center;">Enter PIN</p>
+              <div class="pin-display">
+                <div class="pin-dot" id="cp0"></div><div class="pin-dot" id="cp1"></div>
+                <div class="pin-dot" id="cp2"></div><div class="pin-dot" id="cp3"></div>
+              </div>
+              <div class="numpad">
+                <button class="num-key" onclick="clockPin('1')">1</button><button class="num-key" onclick="clockPin('2')">2</button><button class="num-key" onclick="clockPin('3')">3</button>
+                <button class="num-key" onclick="clockPin('4')">4</button><button class="num-key" onclick="clockPin('5')">5</button><button class="num-key" onclick="clockPin('6')">6</button>
+                <button class="num-key" onclick="clockPin('7')">7</button><button class="num-key" onclick="clockPin('8')">8</button><button class="num-key" onclick="clockPin('9')">9</button>
+                <button class="num-key del" onclick="clockClear()">Clear</button><button class="num-key" onclick="clockPin('0')">0</button><button class="num-key del" onclick="clockDel()">&#9003;</button>
+              </div>
+              <div class="action-btns">
+                <button class="btn-clockin"  onclick="doClockIn()">Clock in</button>
+                <button class="btn-clockout" onclick="doClockOut()">Clock out</button>
+              </div>
+              <div id="clockMsg" style="margin-top:10px;font-size:13px;text-align:center;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: today's attendance -->
+      <div>
+        <div class="card">
+          <div class="card-header"><span class="card-header-title">Today's attendance</span></div>
+          <div class="card-body" style="padding:0 16px;">
+            <div class="attendance-row attendance-head">
+              <span>Staff</span><span>Status</span><span>In</span><span>Hours</span>
+            </div>
+            <div id="attendanceTable">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/clock.js"></script>
+</body>
+</html>

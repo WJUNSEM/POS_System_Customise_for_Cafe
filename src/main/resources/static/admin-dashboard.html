@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Matcha Box — Admin Dashboard</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+body{background:var(--surface)}.bar{background:var(--mg);color:white;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}.nav{display:flex;gap:7px;flex-wrap:wrap;padding:12px 16px;background:#fff;border-bottom:1px solid var(--border)}.nav button{border:1px solid var(--border);background:#fff;padding:8px 12px;border-radius:8px;cursor:pointer}.nav button:hover{background:var(--mp)}.wrap{max-width:1100px;margin:auto;padding:18px 16px 50px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px}.label{font-size:12px;color:var(--text-secondary)}.value{font-size:26px;font-weight:600;color:var(--mg);margin-top:7px}.cardx{background:#fff;border:1px solid var(--border);border-radius:12px;margin-top:14px;padding:16px}.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}.row:last-child{border-bottom:0}@media(max-width:700px){.stats{grid-template-columns:1fr}.bar{gap:10px;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="bar"><div><b>Matcha Box · Admin</b><div style="font-size:11px;color:#b5c9b5">Management Dashboard</div></div><button onclick="adminLogout()" style="background:transparent;color:white;border:1px solid #809a80;border-radius:8px;padding:7px 12px">Logout</button></div>
+<div class="nav">
+<button onclick="location.href='admin-dashboard.html'">Dashboard</button>
+<button onclick="location.href='admin-menu.html'">Menu Management</button>
+<button onclick="location.href='admin-staff.html'">Workers</button>
+<button onclick="location.href='clock.html'">Clock In / Out</button>
+<button onclick="location.href='admin-reports.html'">Reports</button>
+<button onclick="location.href='menu.html'">Customer Menu</button>
+</div>
+<main class="wrap">
+<h2 style="margin:4px 0 14px">Sales overview</h2>
+<div class="stats">
+<div class="stat"><div class="label">Daily Sales</div><div class="value" id="daily">RM 0.00</div></div>
+<div class="stat"><div class="label">Monthly Sales</div><div class="value" id="monthly">RM 0.00</div></div>
+<div class="stat"><div class="label">Yearly Sales</div><div class="value" id="yearly">RM 0.00</div></div>
+</div>
+<div class="cardx"><b>Worker working days & hours this month</b><div id="workers" style="margin-top:8px">Loading...</div></div>
+<div class="cardx"><b>Quick actions</b><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-primary" onclick="location.href='admin-menu.html'">Add / Edit Menu</button><button class="btn btn-secondary" onclick="location.href='admin-staff.html'">Manage Workers</button><button class="btn btn-secondary" onclick="location.href='admin-reports.html'">Generate Report</button></div></div>
+</main>
+<script src="/js/admin.js"></script>
+<script>
+requireAdmin();
+async function loadDashboard(){
+ const r=await fetch('/api/reports/dashboard'); const d=await r.json();
+ document.getElementById('daily').textContent='RM '+Number(d.daily.sales||0).toFixed(2);
+ document.getElementById('monthly').textContent='RM '+Number(d.monthly.sales||0).toFixed(2);
+ document.getElementById('yearly').textContent='RM '+Number(d.yearly.sales||0).toFixed(2);
+ document.getElementById('workers').innerHTML=d.workers.map(w=>`<div class="row"><span>${escapeHtml(w.name)} <small>(${w.role})</small></span><span>${w.workingDays} day(s) · ${Number(w.hoursWorked||0).toFixed(2)} h · Sales RM ${Number(w.sales||0).toFixed(2)}</span></div>`).join('')||'<div>No workers yet.</div>';
+}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+loadDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Matcha Box — Worker Management</title><link rel="stylesheet" href="/css/style.css">
+<style>
+body{background:var(--surface)}.bar{background:var(--mg);color:#fff;padding:14px 20px;display:flex;justify-content:space-between}.wrap{max-width:1000px;margin:auto;padding:18px 16px}.grid{display:grid;grid-template-columns:360px 1fr;gap:14px}.cardx{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}.item{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}.small{font-size:12px;color:var(--text-secondary)}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar"><b>Matcha Box · Worker Management</b><button onclick="location.href='admin-dashboard.html'" style="background:transparent;color:#fff;border:1px solid #809a80;border-radius:8px;padding:7px 12px">Dashboard</button></div>
+<main class="wrap"><div class="grid">
+<div class="cardx"><h3>Add Worker</h3>
+<div class="form-group"><label class="form-label">Full name</label><input class="form-input" id="name"></div>
+<div class="form-group"><label class="form-label">Email</label><input class="form-input" id="email" type="email"></div>
+<div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="phone"></div>
+<div class="form-group"><label class="form-label">4-digit PIN</label><input class="form-input" id="pin" maxlength="4" inputmode="numeric"></div>
+<div class="form-group"><label class="form-label">Role</label><select class="form-select" id="role"><option>BARISTA</option><option>CASHIER</option><option>KITCHEN</option><option>SUPERVISOR</option><option>MANAGER</option></select></div>
+<button class="btn btn-primary" onclick="addWorker()">Add Worker</button><div id="msg" style="font-size:12px;margin-top:9px"></div>
+</div>
+<div class="cardx"><div style="display:flex;justify-content:space-between"><h3>Active Workers</h3><button class="btn btn-secondary" onclick="loadWorkers()">Refresh</button></div><div id="workers">Loading...</div></div>
+</div></main>
+<script src="/js/admin.js"></script>
+<script>
+requireAdmin();
+async function loadWorkers(){const r=await fetch('/api/staff');const data=await r.json();document.getElementById('workers').innerHTML=data.map(s=>`<div class="item"><div><b>${escapeHtml(s.name)}</b><div class="small">${escapeHtml(s.email)} · ${s.role}</div></div><button class="btn btn-secondary" onclick="removeWorker(${s.id})">Remove</button></div>`).join('')||'<div>No active workers.</div>';}
+async function addWorker(){const pin=document.getElementById('pin').value.trim();if(!/^\d{4}$/.test(pin)){show('PIN must be exactly 4 digits');return;}const body={name:document.getElementById('name').value.trim(),email:document.getElementById('email').value.trim(),phone:document.getElementById('phone').value.trim(),pin,passwordHash:'MatchaBox1234',role:document.getElementById('role').value,active:true};const r=await fetch('/api/staff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(r.ok){show('Worker added.');document.getElementById('name').value='';document.getElementById('email').value='';document.getElementById('phone').value='';document.getElementById('pin').value='';loadWorkers();}else show('Unable to add worker. Email may already exist.');}
+async function removeWorker(id){if(!confirm('Remove this worker?'))return;const r=await fetch('/api/staff/'+id,{method:'DELETE'});if(r.ok)loadWorkers();else alert('Unable to remove worker.');}
+function show(t){document.getElementById('msg').textContent=t;}function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+loadWorkers();
+</script>
+</body>
+</html>

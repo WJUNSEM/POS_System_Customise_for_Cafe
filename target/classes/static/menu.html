@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matcha Box — Menu</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">Matcha<span>Box</span></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button onclick="window.location.href='admin-login.html'" style="background:transparent;color:white;border:1px solid rgba(255,255,255,.35);border-radius:18px;padding:6px 11px;cursor:pointer;font-size:12px;">Admin</button>
+      <button class="cart-btn" onclick="window.location.href='checkout.html'">
+        Cart (<span id="cartCount">0</span>)
+      </button>
+    </div>
+  </header>
+  <div class="category-tabs">
+    <button class="cat active" onclick="loadMenu('all', this)">All</button>
+    <button class="cat" onclick="loadMenu('matcha', this)">Matcha</button>
+    <button class="cat" onclick="loadMenu('coffee', this)">Coffee</button>
+    <button class="cat" onclick="loadMenu('pastry', this)">Pastry</button>
+    <button class="cat" onclick="loadMenu('food', this)">Food</button>
+  </div>
+  <main>
+    <div id="loadingMsg" class="loading-msg">
+      <div class="spinner"></div> Loading menu...
+    </div>
+    <div id="errorMsg" class="error-msg">
+      Failed to load menu. Make sure Spring Boot is running on port 8080.
+    </div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </main>
+  <div class="cart-bar" id="cartBar" onclick="window.location.href='checkout.html'">
+    <div class="cart-bar-left">
+      <div class="cart-bubble" id="cartQty">0</div>
+      <div>
+        <div class="cart-label">View order</div>
+        <div class="cart-sublabel" id="cartItems">No items yet</div>
+      </div>
+    </div>
+    <div class="cart-total" id="cartTotal">RM 0.00</div>
+  </div>
+  <script src="/js/menu.js"></script>
+</body>
+</html>

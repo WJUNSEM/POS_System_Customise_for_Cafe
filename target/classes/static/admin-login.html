@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Matcha Box — Admin Login</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+body{background:var(--surface)}.admin-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.admin-card{width:100%;max-width:390px;background:#fff;border:1px solid var(--border);border-radius:18px;padding:28px}
+.logo{text-align:center;font-size:25px;font-weight:600;color:var(--mg);margin-bottom:6px}.logo span{color:var(--ml)}
+.subtitle{text-align:center;color:var(--text-secondary);font-size:13px;margin-bottom:24px}
+.err{display:none;background:#fcebea;color:#791f1f;border:1px solid #f09595;padding:10px;border-radius:8px;font-size:13px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="admin-wrap">
+<div class="admin-card">
+<div class="logo">Matcha<span>Box</span></div>
+<div class="subtitle">Administrator access</div>
+<div id="error" class="err"></div>
+<div class="form-group"><label class="form-label">Username</label><input class="form-input" id="username" type="email" value="MatchaBox@gmail.com"></div>
+<div class="form-group"><label class="form-label">Password</label><input class="form-input" id="password" type="password" value="MatchaBox1234"></div>
+<button class="btn btn-primary" style="width:100%" onclick="adminLogin()">Sign in</button>
+<div style="text-align:center;margin-top:15px;font-size:12px"><a href="/menu.html">← Back to customer menu</a></div>
+</div></div>
+<script src="/js/admin.js"></script>
+</body>
+</html>

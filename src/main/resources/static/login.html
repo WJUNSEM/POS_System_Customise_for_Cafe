@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matcha Box — Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-logo">Matcha<span>Box</span></div>
+      <div class="login-title">Sign in to your account</div>
+
+      <div id="errorAlert" class="error-msg" style="display:none;margin-bottom:14px;"></div>
+
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" id="email" type="email" placeholder="you@matchabox.my" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="password" type="password" placeholder="Enter your password" autocomplete="current-password">
+      </div>
+
+      <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="rememberMe" style="width:16px;height:16px;accent-color:#2D4A2D;">
+        <label for="rememberMe" class="form-label" style="margin:0;cursor:pointer;">Remember me</label>
+      </div>
+
+      <button class="btn btn-primary" id="loginBtn" onclick="login()" style="margin-top:8px;">
+        Sign in
+      </button>
+
+      <div style="text-align:center;margin-top:16px;font-size:13px;color:var(--text-secondary);">
+        Staff member?
+        <a href="/staff-login.html" style="color:var(--mm);text-decoration:none;font-weight:500;">Staff login →</a>
+      </div>
+    </div>
+  </div>
+  <script src="/js/login.js"></script>
+</body>
+</html>
